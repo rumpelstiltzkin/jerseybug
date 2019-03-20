@@ -1,9 +1,15 @@
 package com.hammerspace.jerseyusage.clientserver;
 
-import com.sun.net.httpserver.HttpServer;
+import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
+import org.glassfish.jersey.server.ResourceConfig;
 
 import javax.ws.rs.client.InvocationCallback;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+
+import java.net.URI;
+
 
 import static java.lang.System.exit;
 
@@ -44,28 +50,37 @@ public class Main {
             AsyncClient client = new AsyncClient();
             client.clientInvoke(new InvocationCallback<Response>() {
                 public void completed(Response response) {
+                    System.out.println("async callback completed()");
                     int status = response.getStatus();
+                    System.out.println("Got status=" + status + " from server");
                     switch (status) {
                         case 200:
-
+                            MyResponse myResponse = response.readEntity(MyResponse.class);
+                            System.out.println("Got MyResponse=" + myResponse);
+                            break;
+                        default:
+                            String errMsg = response.readEntity(String.class);
+                            System.out.println("Got errMsg=" + errMsg);
+                            break;
                     }
-                    System.out.println("async callback completed()");
                     wakeUpMain();
                 }
 
                 public void failed(Throwable throwable) {
-                    System.out.println("async callback failed()");
+                    System.out.println("async callback failed() with error " + throwable.getMessage());
                     wakeUpMain();
                 }
             });
 
             waitForAsyncCallback();
+            System.out.println("Main exiting ...");
             exit(0);
         }
 
         // server
         HttpServer server;
-        int payloadSize = 1024;
+        URI baseUri = UriBuilder.fromUri("http://localhost/").port(Constants.REST_SERVER_PORT).build();
+        int payloadSize = 64;
         if (args.length > 1) {
             try {
                 payloadSize = Integer.valueOf(args[1]);
@@ -74,6 +89,22 @@ public class Main {
             }
         }
         System.out.println("Using payloadSize=" + payloadSize + " bytes");
-        SyncServer resource = new SyncServer(payloadSize);
+        SyncServerResource resource = new SyncServerResource(payloadSize);
+
+        ResourceConfig resourceConfig = new ResourceConfig().register(resource);
+        server = GrizzlyHttpServerFactory.createHttpServer(baseUri, resourceConfig);
+        try {
+            server.start();
+            System.out.println("Server started ...");
+        } catch (Exception e) {
+            System.out.println("Error starting server " + e.getMessage());
+            exit(2);
+        }
+
+        System.out.println("Server will wait around until Ctrl-C is entered ...");
+        waitForAsyncCallback(); // it will never arrive; for server simply hit Ctrl-C to quit
+        exit(0);
     }
 }
+
+

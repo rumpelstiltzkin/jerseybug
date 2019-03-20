@@ -17,19 +17,17 @@ import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jdk.connector.JdkConnectorProvider;
 import org.glassfish.jersey.jsonp.JsonProcessingFeature;
 import org.glassfish.jersey.logging.LoggingFeature;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author aganesh
  * @since 2019-03-18
  */
-@Slf4j
 public class AsyncClient {
     private static final int CORE_POOL_SIZE = 2;
     private static final int MAX_POOL_SIZE = 2;
     private static final long TIMEOUT_MILLIS = TimeUnit.MINUTES.toMillis(5);
 
-    private static final byte[] TEST_RESOURCE_NAME = "testinput".getBytes();
+    private static final String TEST_RESOURCE_NAME = "testresource";
 
     private final ExecutorService es;
     private final Client client;
@@ -44,7 +42,7 @@ public class AsyncClient {
                 .executorService(es)
                 .register(JsonProcessingFeature.class)
                 .register(LoggingFeature.class)
-                .property(LoggingFeature.LOGGING_FEATURE_LOGGER_NAME_CLIENT, log.getName())
+                .property(LoggingFeature.LOGGING_FEATURE_LOGGER_NAME_CLIENT, "hammerspaceJerseyTestLog")
                 .connectTimeout(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
                 .readTimeout(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
                 .withConfig(new ClientConfig().connectorProvider(new JdkConnectorProvider()))
@@ -60,7 +58,7 @@ public class AsyncClient {
 
         return client.target(baseUri)
                 .path(Constants.TEST_RESOURCE_PATH)
-                .path("{testresource}").resolveTemplate("testresource", DatatypeConverter.printHexBinary(TEST_RESOURCE_NAME))
+                .path("{testresource}").resolveTemplate("testresource", TEST_RESOURCE_NAME)
                 .request(MediaType.APPLICATION_JSON)
                 .async()
                 .put(Entity.entity(myRequest, MediaType.APPLICATION_JSON), handler);

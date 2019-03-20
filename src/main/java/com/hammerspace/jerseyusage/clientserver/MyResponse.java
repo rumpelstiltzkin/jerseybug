@@ -28,8 +28,6 @@ public class MyResponse {
 
     @Override
     public String toString() {
-        return "MyRequest{"
-                + ", keysValues=" + keysValues
-                + '}';
+        return "MyResponse{" + "keysValues=" + keysValues + '}';
     }
 }

@@ -32,8 +32,6 @@ public class MyRequest {
 
     @Override
     public String toString() {
-        return "MyRequest{"
-                + ", keysValues=" + keysValues
-                + '}';
+        return "MyRequest{" + "keysValues=" + keysValues + '}';
     }
 }

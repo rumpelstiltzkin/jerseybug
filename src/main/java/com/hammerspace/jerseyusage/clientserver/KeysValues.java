@@ -48,4 +48,16 @@ public class KeysValues {
     public void set(@Nonnull String key, @Nonnull String value) {
         mdMap.put(key, value);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb =  new StringBuilder(1024);
+        sb.append('{');
+        mdMap.forEach((key, value) -> {
+            sb.append('\n').append(key).append('=').append(value).append(',');
+        });
+        sb.setLength(sb.length() - 1);
+        sb.append('}');
+        return sb.toString();
+    }
 }

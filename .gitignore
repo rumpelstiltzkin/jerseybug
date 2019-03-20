@@ -1,0 +1,21 @@
+# maven files
+target
+# intelij files
+*.iml
+.idea
+# eclipse files
+.project
+.settings
+.classpath
+# ??
+.checkstyle
+*.DS_Store
+*dme_build_test*.log*
+*cm_*_build_test*.log*
+*cloud_model_build_test*.log*
+*csp_info_build_test*.log*
+*hmdb_build_test*.log*
+# envoy specific scripts
+envoy/src/test/scripts/kafka_*
+# RPMs
+RPMS
